@@ -55,6 +55,10 @@ export async function intiChatClient(): Promise<void> {
 
             }
 
+            if (foundUser.hasVerified) {
+                return;
+            }
+
             foundUser.attempts += 1;
 
             Storage.saveConfig();
@@ -67,12 +71,12 @@ export async function intiChatClient(): Promise<void> {
                 return chatClient.say(channel, `@${msg.userInfo.displayName} was banned for being unable to verify!`);
             }
 
-            if (!foundUser.hasVerified) {
-                chatClient.deleteMessage(channel, msg).catch(console.error);
-                return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
+
+            chatClient.deleteMessage(channel, msg).catch(console.error);
+            return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
             + ` Please type in chat ${CONFIG.prefix}verify ${foundUser.id}, Fail this 3 times and you'll be banned`);
 
-            }
+
         }
 
 

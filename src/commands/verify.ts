@@ -30,6 +30,10 @@ exports.run = async (chatClient: ChatClient,
 
     }
 
+    if (foundUser.hasVerified) {
+        return chatClient.say(channel, `@${msg.userInfo.displayName} You are already verified!`);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (args[0] === undefined) {
         foundUser.attempts += 1;
