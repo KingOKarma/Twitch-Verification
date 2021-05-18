@@ -36,7 +36,8 @@ export async function intiChatClient(): Promise<void> {
         if (!message.startsWith(`${CONFIG.prefix}verify`)) {
 
             const foundUser = STORAGE.verify.find((chan) => chan.channel === user);
-
+            console.log(foundUser);
+            console.log(message);
             if (foundUser === undefined) {
                 const newVerifiy: Verifiy = {
                     attempts: 0,
