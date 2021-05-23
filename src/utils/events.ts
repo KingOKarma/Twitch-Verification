@@ -22,12 +22,12 @@ export async function intiChatClient(): Promise<void> {
 
 
     chatClient.onMessage(async (channel: string, user: string, message: string, msg: TwitchPrivateMessage) => {
-        console.log("aaaa");
         if (user === CONFIG.botUsername) return;
         if (msg.userInfo.isBroadcaster) return;
         if (msg.userInfo.isVip) return;
         if (msg.userInfo.isMod) return;
         if (msg.userInfo.isSubscriber) return;
+        if (msg.userInfo.badges.has("partner")) return;
 
 
         const args = message.slice(prefix.length).trim().split(/ +/g);
