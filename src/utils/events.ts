@@ -23,11 +23,6 @@ export async function intiChatClient(): Promise<void> {
 
     chatClient.onMessage(async (channel: string, user: string, message: string, msg: TwitchPrivateMessage) => {
         if (user === CONFIG.botUsername) return;
-        if (msg.userInfo.isBroadcaster) return;
-        if (msg.userInfo.isVip) return;
-        if (msg.userInfo.isMod) return;
-        if (msg.userInfo.isSubscriber) return;
-        if (msg.userInfo.badges.has("partner")) return;
 
 
         const args = message.slice(prefix.length).trim().split(/ +/g);
@@ -55,27 +50,32 @@ export async function intiChatClient(): Promise<void> {
 
                 }
 
-                if (foundUser.hasVerified) {
-                    return;
-                }
+                if (!foundUser.hasVerified) {
+                    if (msg.userInfo.isBroadcaster) return;
+                    if (msg.userInfo.isVip) return;
+                    if (msg.userInfo.isMod) return;
+                    if (msg.userInfo.isSubscriber) return;
+                    if (msg.userInfo.badges.has("partner")) return;
 
-                foundUser.attempts += 1;
 
-                Storage.saveConfig();
+                    foundUser.attempts += 1;
 
-                if (foundUser.attempts > 3) {
-                    chatClient.ban(channel, user, "Did not verify, you can still appeal though!").catch(console.error);
-                    foundUser.attempts = 0;
-                    foundUser.hasVerified = false;
                     Storage.saveConfig();
-                    return chatClient.say(channel, `@${msg.userInfo.displayName} was banned for being unable to verify!`);
-                }
+
+                    if (foundUser.attempts > 3) {
+                        chatClient.ban(channel, user, "Did not verify, you can still appeal though!").catch(console.error);
+                        foundUser.attempts = 0;
+                        foundUser.hasVerified = false;
+                        Storage.saveConfig();
+                        return chatClient.say(channel, `@${msg.userInfo.displayName} was banned for being unable to verify!`);
+                    }
 
 
-                chatClient.deleteMessage(channel, msg).catch(console.error);
-                return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
+                    chatClient.deleteMessage(channel, msg).catch(console.error);
+                    return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
                 + ` Please type in chat ${CONFIG.prefix}verify ${foundUser.id}, Fail this 3 times and you'll be banned`);
 
+                }
             }
         }
 
