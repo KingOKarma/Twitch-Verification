@@ -12,16 +12,20 @@ export interface Verifiy {
 /**
  * This represents the storage.yml
  * @class Storage
- * @property {string} verify
+ * @property {boolean} checkChat
+ * @property {Verify} verify
 
  */
 export default class Storage {
     private static readonly _configLocation = "./storage.yml";
 
-    public readonly verify: Verifiy[];
+    public checkChat: boolean;
+
+    public verify: Verifiy[];
 
 
     private constructor() {
+        this.checkChat = false;
         this.verify = [
             {
                 attempts: 0,
