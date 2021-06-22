@@ -35,49 +35,48 @@ export async function intiChatClient(): Promise<void> {
         const cmd = args.shift()?.toLowerCase();
 
         if (!message.startsWith(`${CONFIG.prefix}verify`)) {
-            if (!STORAGE.checkChat) {
-                return;
-            }
+            if (STORAGE.checkChat) {
 
-            const foundUser = STORAGE.verify.find((chan) => chan.channel === user);
-            if (foundUser === undefined) {
-                const newVerifiy: Verifiy = {
-                    attempts: 0,
-                    channel: user,
-                    hasVerified: false,
-                    id: nanoid()
-                };
 
-                STORAGE.verify.push(newVerifiy);
-                Storage.saveConfig();
-                chatClient.deleteMessage(channel, msg).catch(console.error);
-                return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
+                const foundUser = STORAGE.verify.find((chan) => chan.channel === user);
+                if (foundUser === undefined) {
+                    const newVerifiy: Verifiy = {
+                        attempts: 0,
+                        channel: user,
+                        hasVerified: false,
+                        id: nanoid()
+                    };
+
+                    STORAGE.verify.push(newVerifiy);
+                    Storage.saveConfig();
+                    chatClient.deleteMessage(channel, msg).catch(console.error);
+                    return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
                     + ` Please type in chat ${CONFIG.prefix}verify ${newVerifiy.id}, Fail this 3 times and you'll be banned`);
 
-            }
+                }
 
-            if (foundUser.hasVerified) {
-                return;
-            }
+                if (foundUser.hasVerified) {
+                    return;
+                }
 
-            foundUser.attempts += 1;
+                foundUser.attempts += 1;
 
-            Storage.saveConfig();
-
-            if (foundUser.attempts > 3) {
-                chatClient.ban(channel, user, "Did not verify, you can still appeal though!").catch(console.error);
-                foundUser.attempts = 0;
-                foundUser.hasVerified = false;
                 Storage.saveConfig();
-                return chatClient.say(channel, `@${msg.userInfo.displayName} was banned for being unable to verify!`);
-            }
+
+                if (foundUser.attempts > 3) {
+                    chatClient.ban(channel, user, "Did not verify, you can still appeal though!").catch(console.error);
+                    foundUser.attempts = 0;
+                    foundUser.hasVerified = false;
+                    Storage.saveConfig();
+                    return chatClient.say(channel, `@${msg.userInfo.displayName} was banned for being unable to verify!`);
+                }
 
 
-            chatClient.deleteMessage(channel, msg).catch(console.error);
-            return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
+                chatClient.deleteMessage(channel, msg).catch(console.error);
+                return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
                 + ` Please type in chat ${CONFIG.prefix}verify ${foundUser.id}, Fail this 3 times and you'll be banned`);
 
-
+            }
         }
 
 
