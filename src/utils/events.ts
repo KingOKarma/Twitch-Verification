@@ -35,10 +35,11 @@ export async function intiChatClient(): Promise<void> {
         const cmd = args.shift()?.toLowerCase();
 
         if (!message.startsWith(`${CONFIG.prefix}verify`)) {
+            if (!STORAGE.checkChat) {
+                return;
+            }
 
             const foundUser = STORAGE.verify.find((chan) => chan.channel === user);
-            console.log(foundUser);
-            console.log(message);
             if (foundUser === undefined) {
                 const newVerifiy: Verifiy = {
                     attempts: 0,
@@ -51,7 +52,7 @@ export async function intiChatClient(): Promise<void> {
                 Storage.saveConfig();
                 chatClient.deleteMessage(channel, msg).catch(console.error);
                 return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
-            + ` Please type in chat ${CONFIG.prefix}verify ${newVerifiy.id}, Fail this 3 times and you'll be banned`);
+                    + ` Please type in chat ${CONFIG.prefix}verify ${newVerifiy.id}, Fail this 3 times and you'll be banned`);
 
             }
 
@@ -74,7 +75,7 @@ export async function intiChatClient(): Promise<void> {
 
             chatClient.deleteMessage(channel, msg).catch(console.error);
             return chatClient.say(channel, `You are not verified @${msg.userInfo.displayName}`
-            + ` Please type in chat ${CONFIG.prefix}verify ${foundUser.id}, Fail this 3 times and you'll be banned`);
+                + ` Please type in chat ${CONFIG.prefix}verify ${foundUser.id}, Fail this 3 times and you'll be banned`);
 
 
         }
@@ -103,5 +104,24 @@ export async function intiChatClient(): Promise<void> {
 
 
     });
+
+}
+
+/**
+ * Checks if user has perms to use bot commands
+   * @param {TwitchPrivateMessage} msg Message instance
+ */
+export function checkPerms(msg: TwitchPrivateMessage): boolean {
+    let hasperms = false;
+
+    if (msg.userInfo.isBroadcaster) {
+        hasperms = true;
+    }
+
+    if (msg.userInfo.isMod) {
+        hasperms = true;
+    }
+
+    return hasperms;
 
 }
